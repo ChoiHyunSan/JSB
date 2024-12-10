@@ -22,7 +22,7 @@ public class Answer {
 
     private LocalDateTime createDate;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Author author;
 
     protected Answer() {}
@@ -33,6 +33,7 @@ public class Answer {
         answer.content = content;
         answer.author = author;
         answer.createDate = LocalDateTime.now();
+
         return answer;
     }
 }
