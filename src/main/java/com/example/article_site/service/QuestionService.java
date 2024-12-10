@@ -1,13 +1,19 @@
 package com.example.article_site.service;
 
+import com.example.article_site.domain.Author;
 import com.example.article_site.domain.Question;
 import com.example.article_site.dto.QuestionDetailDto;
 import com.example.article_site.dto.QuestionListDto;
 import com.example.article_site.exception.DataNotFoundException;
+import com.example.article_site.repository.AuthorRepository;
 import com.example.article_site.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,21 +24,24 @@ import static com.example.article_site.exception.Message.QUESTION_NOT_FOUND;
 @RequiredArgsConstructor
 public class QuestionService {
     private final QuestionRepository questionRepository;
+    private final AuthorRepository authorRepository;
 
     /**
-     * question 들을 QuestionListDto 정보로 변환하여 넘겨준다.
+     * question 페이지를 QuestionListDto 정보로 변환하여 넘겨준다.
      */
-    public List<QuestionListDto> getQuestionListDtos() {
-        return questionRepository.findAll().stream()
-                .map(QuestionListDto::createQuestionListDto)
-                .toList();
+    public Page<QuestionListDto> getQuestionPageDtos(int page) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(new Sort.Order(Sort.Direction.ASC, "createDate"));
+        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by(sorts));
+        return questionRepository.findAll(pageRequest)
+                .map(QuestionListDto::createQuestionListDto);
     }
 
     /**
      * 상세 페이지로 보낼 id에 맞는 질문 정보를 취합하여 반환
      * 조회되지 않는 질문의 경우 DataNotFoundException 을 던진다.
      */
-    public QuestionDetailDto getQuestionDetailDtoOpt(Long id) {
+    public QuestionDetailDto getQuestionDetailDto(Long id) {
         Optional<Question> questionOpt = questionRepository.findById(id);
         if(questionOpt.isEmpty()){
             throw new DataNotFoundException(QUESTION_NOT_FOUND);
@@ -49,5 +58,15 @@ public class QuestionService {
             throw new DataNotFoundException(QUESTION_NOT_FOUND);
         }
         return byId.get();
+    }
+
+    public void create(String subject, String content) {
+        // TODO : 작가 정보 넘겨주기 (일단 모두 1번 작성자가 다 넣는다.)
+        Optional<Author> byId = authorRepository.findById(1L);
+        if(byId.isEmpty()){
+            throw new DataNotFoundException("Author Not Found");
+        }
+
+        questionRepository.save(Question.createQuestion(subject, content, byId.get()));
     }
 }
