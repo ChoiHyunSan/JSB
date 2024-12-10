@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Entity
 public class Question {
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "question_id")
     private long id;
 
@@ -22,9 +22,21 @@ public class Question {
 
     private LocalDateTime createDate;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
     private Author author;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     private List<Answer> answerList = new ArrayList<Answer>();
+
+    protected Question() {}
+
+    public static Question createQuestion(String subject, String content, Author author) {
+        Question question = new Question();
+        question.subject = subject;
+        question.content = content;
+        question.author = author;
+        question.createDate = LocalDateTime.now();
+        return question;
+    }
 }

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Answer {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "answer_id")
     private long id;
 
@@ -24,4 +24,15 @@ public class Answer {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Author author;
+
+    protected Answer() {}
+
+    public static Answer createAnswer(Question question, String content, Author author) {
+        Answer answer = new Answer();
+        answer.question = question;
+        answer.content = content;
+        answer.author = author;
+        answer.createDate = LocalDateTime.now();
+        return answer;
+    }
 }
