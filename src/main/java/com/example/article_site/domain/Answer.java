@@ -34,6 +34,7 @@ public class Answer {
         answer.author = author;
         answer.createDate = LocalDateTime.now();
 
+        question.getAnswerList().add(answer);
         return answer;
     }
 }

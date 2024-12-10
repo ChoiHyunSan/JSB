@@ -24,7 +24,7 @@ import static com.example.article_site.exception.Message.QUESTION_NOT_FOUND;
 @RequiredArgsConstructor
 public class QuestionService {
     private final QuestionRepository questionRepository;
-    private final AuthorRepository authorRepository;
+    private final AuthorService authorService;
 
     /**
      * question 페이지를 QuestionListDto 정보로 변환하여 넘겨준다.
@@ -60,13 +60,8 @@ public class QuestionService {
         return byId.get();
     }
 
-    public void create(String subject, String content) {
-        // TODO : 작가 정보 넘겨주기 (일단 모두 1번 작성자가 다 넣는다.)
-        Optional<Author> byId = authorRepository.findById(1L);
-        if(byId.isEmpty()){
-            throw new DataNotFoundException("Author Not Found");
-        }
-
-        questionRepository.save(Question.createQuestion(subject, content, byId.get()));
+    public void create(String subject, String content, String username) {
+        Author author = authorService.findByUsername(username);
+        questionRepository.save(Question.createQuestion(subject, content, author));
     }
 }
