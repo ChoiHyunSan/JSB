@@ -8,6 +8,7 @@ import com.example.article_site.form.AnswerForm;
 import com.example.article_site.form.QuestionForm;
 import com.example.article_site.service.AuthorService;
 import com.example.article_site.service.QuestionService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class QuestionController {
 
     private final QuestionService questionService;
     private final AuthorService authorService;
+    private final SortPreference sortPreference;
 
     @GetMapping("/list")
     public String list(Model model,
@@ -45,8 +47,11 @@ public class QuestionController {
     public String detail(@PathVariable("id") Long id,
                          Model model,
                          @RequestParam(value= "page", defaultValue="0") int answerPage,
+                         @RequestParam(required = false) String sort,
+                         HttpSession session,
                          AnswerForm answerForm) {
-        QuestionDetailDto questionDetailDto =  questionService.getQuestionDetailDto(id, answerPage);
+        String currentSort = sortPreference.getCurrentSort(session, sort);
+        QuestionDetailDto questionDetailDto =  questionService.getQuestionDetailDto(id, answerPage, currentSort);
         model.addAttribute("question", questionDetailDto);
         return "question_detail";
     }

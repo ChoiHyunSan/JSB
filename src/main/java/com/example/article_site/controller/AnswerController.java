@@ -8,6 +8,7 @@ import com.example.article_site.form.AnswerForm;
 import com.example.article_site.service.AnswerService;
 import com.example.article_site.service.AuthorService;
 import com.example.article_site.service.QuestionService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ public class AnswerController {
     private final QuestionService questionService;
     private final AnswerService answerService;
     private final AuthorService authorService;
+    private final SortPreference sortPreference;
 
     @PreAuthorize(" isAuthenticated()")
     @PostMapping("/create/{id}")
@@ -36,9 +38,12 @@ public class AnswerController {
                          @Valid AnswerForm answerForm,
                          BindingResult bindingResult,
                          @RequestParam(value= "page", defaultValue="0") int answerPage,
+                         @RequestParam(required = false) String sort,
+                         HttpSession session,
                          Principal principal) {
         if(bindingResult.hasErrors()) {
-            QuestionDetailDto questionDetailDto = questionService.getQuestionDetailDto(id, answerPage);
+            String currentSort = sortPreference.getCurrentSort(session, sort);
+            QuestionDetailDto questionDetailDto = questionService.getQuestionDetailDto(id, answerPage, currentSort);
             model.addAttribute("question", questionDetailDto);
             return "question_detail";
         }

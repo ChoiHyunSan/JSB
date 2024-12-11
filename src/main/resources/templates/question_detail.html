@@ -29,7 +29,22 @@
             <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answerCount)}개의 답변이 있습니다.|"></h5>
         </div>
 
+        <!-- 답변 작성 -->
+        <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}"
+              method="post" class="my-3">
+            <div th:replace="~{form_errors :: formErrorsFragment}"></div>
+            <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
+            <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
+            <input type="submit" value=" 답 변 등 록 " class="btn btn-primary my-2">
+        </form>
+
         <!-- 답변 반복 시작 -->
+        <div class="btn-group border-bottom">
+            <a th:href="@{|/question/detail/${question.id}?sort=latest|}"
+               class="btn btn-sm btn-outline-secondary">최신순</a>
+            <a th:href="@{|/question/detail/${question.id}?sort=likes|}"
+               class="btn btn-sm btn-outline-secondary">추천순</a>
+        </div>
         <div class="card my-3" th:each="answer, loop : ${question.answerPage}">
             <a th:id="|answer_${answer.id}|"></a>
             <div class="card-body">
@@ -83,15 +98,6 @@
             </ul>
         </div>
         <!-- 네비게이터 바-->
-
-        <!-- 답변 작성 -->
-        <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}"
-              method="post" class="my-3">
-            <div th:replace="~{form_errors :: formErrorsFragment}"></div>
-            <textarea sec:authorize="isAnonymous()" disabled th:field="*{content}" class="form-control" rows="10"></textarea>
-            <textarea sec:authorize="isAuthenticated()" th:field="*{content}" class="form-control" rows="10"></textarea>
-            <input type="submit" value=" 답 변 등 록 " class="btn btn-primary my-2">
-        </form>
         <form th:action="@{|/question/detail/${question.id}|}" method="get" id="searchForm">
             <input type="hidden" id="page" name="page" th:value="${question.answerPage.number}">
         </form>

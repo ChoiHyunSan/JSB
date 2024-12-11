@@ -1,8 +1,10 @@
 package com.example.article_site.service;
 
+import com.example.article_site.controller.SortPreference;
 import com.example.article_site.domain.Answer;
 import com.example.article_site.domain.Author;
 import com.example.article_site.domain.Question;
+import com.example.article_site.dto.AnswerDto;
 import com.example.article_site.dto.QuestionDetailDto;
 import com.example.article_site.dto.QuestionListDto;
 import com.example.article_site.exception.DataNotFoundException;
@@ -21,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.article_site.controller.SortPreference.SORT_LATEST;
 import static com.example.article_site.domain.Question.modifyQuestion;
 import static com.example.article_site.dto.QuestionDetailDto.createQuestionDetailDto;
 import static com.example.article_site.exception.Message.QUESTION_NOT_FOUND;
@@ -51,7 +54,7 @@ public class QuestionService {
      * 상세 페이지로 보낼 id에 맞는 질문 정보를 취합하여 반환
      * 조회되지 않는 질문의 경우 DataNotFoundException 을 던진다.
      */
-    public QuestionDetailDto getQuestionDetailDto(Long id, int answerPage) {
+    public QuestionDetailDto getQuestionDetailDto(Long id, int answerPage, String sort) {
         Optional<Question> questionOpt = questionRepository.findById(id);
         if(questionOpt.isEmpty()){
             throw new DataNotFoundException(QUESTION_NOT_FOUND);
@@ -59,7 +62,7 @@ public class QuestionService {
         return createQuestionDetailDto(questionOpt.get(),
                                         answerPage,
                                         ANSWER_PAGE_SIZE,
-                                        comparingInt(a -> -a.getVoter().size()));  // TODO : 인자로 비교 값을 받아서 처리하게 변경
+                                        getComparator(sort));
     }
 
     /**
@@ -117,5 +120,11 @@ public class QuestionService {
                         cb.like(u2.get("username"), "%" + kw + "%"));       // 답 변 작 성자
             }
         };
+    }
+
+    private Comparator<Answer> getComparator(String sort) {
+        return SORT_LATEST.equals(sort)
+                ? comparing(Answer::getCreateDate).reversed()
+                : comparingInt(a -> -a.getVoter().size());
     }
 }
