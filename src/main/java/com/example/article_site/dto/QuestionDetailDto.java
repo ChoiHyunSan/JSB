@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.List;
 
 @Getter
 @Setter
@@ -23,6 +22,7 @@ public class QuestionDetailDto {
     private Page<AnswerDto> answerPage;
     private Integer answerCount;
     private Integer likes;
+    private Long views;
 
     public static QuestionDetailDto createQuestionDetailDto(Question question, int pageNum, int size, Comparator<Answer> cmp) {
         QuestionDetailDto dto = new QuestionDetailDto();
@@ -36,6 +36,7 @@ public class QuestionDetailDto {
         dto.setAnswerPage(page);
         dto.setLikes(question.getVoter().size());
         dto.setAnswerCount(question.getAnswerList().size());
+        dto.setViews(question.getViews());
         return dto;
     }
 }

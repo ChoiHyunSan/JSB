@@ -19,6 +19,7 @@ public class QuestionListDto {
     private LocalDateTime createDate;
     private String author;
     private Integer answerCount;
+    private Long views;
 
     public static QuestionListDto createQuestionListDto(Question question) {
         QuestionListDto dto = new QuestionListDto();
@@ -28,6 +29,7 @@ public class QuestionListDto {
         dto.setCreateDate(question.getCreateDate());
         dto.setAuthor(question.getAuthor().getUsername());
         dto.setAnswerCount(question.getAnswerList().size());
+        dto.setViews(question.getViews());
         return dto;
     }
 }

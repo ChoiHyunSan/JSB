@@ -1,5 +1,6 @@
 package com.example.article_site.form;
 
+import com.example.article_site.domain.Category;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -15,4 +16,7 @@ public class QuestionForm {
 
     @NotEmpty(message=" 내용은 필수항목입니다.")
     private String content;
+
+    @NotEmpty(message = "카테고리는 필수항목입니다.")
+    private String category;
 }

@@ -3,7 +3,6 @@ package com.example.article_site.dto;
 import com.example.article_site.domain.Answer;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;

@@ -1,12 +1,14 @@
 package com.example.article_site.controller;
 
 import com.example.article_site.domain.Author;
+import com.example.article_site.domain.Category;
 import com.example.article_site.domain.Question;
 import com.example.article_site.dto.QuestionDetailDto;
 import com.example.article_site.dto.QuestionListDto;
 import com.example.article_site.form.AnswerForm;
 import com.example.article_site.form.QuestionForm;
 import com.example.article_site.service.AuthorService;
+import com.example.article_site.service.CategoryService;
 import com.example.article_site.service.QuestionService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -32,14 +35,22 @@ public class QuestionController {
     private final QuestionService questionService;
     private final AuthorService authorService;
     private final SortPreference sortPreference;
+    private final CategoryService categoryService;
 
     @GetMapping("/list")
     public String list(Model model,
                        @RequestParam(value="page", defaultValue="0") int page,
+                       @RequestParam(value="category", defaultValue = "전체") String category,
                        @RequestParam(value = "kw", defaultValue = "") String kw) {
-        Page<QuestionListDto> paging = questionService.getQuestionDtoPage(page, kw);
+        // Category List
+        List<String> categories = categoryService.getCategoryNames();
+        model.addAttribute("categoryNames", categories);
+
+        // Question List
+        Page<QuestionListDto> paging = questionService.getQuestionDtoPage(page, kw, category);
         model.addAttribute("paging", paging);
         model.addAttribute("kw", kw);
+        model.addAttribute("category", category);
         return "question_list";
     }
 
@@ -50,15 +61,25 @@ public class QuestionController {
                          @RequestParam(required = false) String sort,
                          HttpSession session,
                          AnswerForm answerForm) {
+
+        // Question views update
+        questionService.updateViews(id);
+
+        // Question info
         String currentSort = sortPreference.getCurrentSort(session, sort);
         QuestionDetailDto questionDetailDto =  questionService.getQuestionDetailDto(id, answerPage, currentSort);
         model.addAttribute("question", questionDetailDto);
+
         return "question_detail";
     }
 
     @PreAuthorize(" isAuthenticated()")
     @GetMapping("/create")
-    public String create(QuestionForm questionForm) {
+    public String create(QuestionForm questionForm,
+                         Model model) {
+
+        List<String> categories = categoryService.getCategoryNames();
+        model.addAttribute("categories", categories);
         return "question_form";
     }
 
@@ -66,12 +87,16 @@ public class QuestionController {
     @PostMapping("/create")
     public String questionCreate(@Valid QuestionForm questionForm,
                                  BindingResult bindingResult,
-                                 Principal principal) {
+                                 Principal principal,
+                                 Model model) {
         if(bindingResult.hasErrors()) {
+            List<String> categories = categoryService.getCategoryNames();  // 또는 getCategoryList() 등
+            model.addAttribute("categories", categories);
             return "question_form";
         }
 
-        questionService.create(questionForm.getSubject(), questionForm.getContent(), principal.getName());
+
+        questionService.create(questionForm.getSubject(), questionForm.getContent(), questionForm.getCategory(), principal.getName());
         return "redirect:/question/list";
     }
 
@@ -102,7 +127,7 @@ public class QuestionController {
         if(!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
-        questionService.modify(question, questionForm.getSubject(), questionForm.getContent());
+        questionService.modify(question, questionForm.getSubject(), questionForm.getContent(), questionForm.getCategory());
         return "redirect:/question/detail/{id}" ;
     }
 

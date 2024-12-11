@@ -1,10 +1,9 @@
 package com.example.article_site.service;
 
-import com.example.article_site.controller.SortPreference;
 import com.example.article_site.domain.Answer;
 import com.example.article_site.domain.Author;
+import com.example.article_site.domain.Category;
 import com.example.article_site.domain.Question;
-import com.example.article_site.dto.AnswerDto;
 import com.example.article_site.dto.QuestionDetailDto;
 import com.example.article_site.dto.QuestionListDto;
 import com.example.article_site.exception.DataNotFoundException;
@@ -35,19 +34,32 @@ import static java.util.Comparator.comparingInt;
 public class QuestionService {
     private final QuestionRepository questionRepository;
     private final AuthorService authorService;
+    private final CategoryService categoryService;
 
     private final static int QUESTION_PAGE_SIZE = 10;
     private final static int ANSWER_PAGE_SIZE = 5;
+
     /**
      * question 페이지를 QuestionListDto 정보로 변환하여 넘겨준다.
      */
-    public Page<QuestionListDto> getQuestionDtoPage(int page, String kw) {
+    public Page<QuestionListDto> getQuestionDtoPage(int page, String kw, String categoryName) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(new Sort.Order(Sort.Direction.ASC, "createDate"));
         Pageable pageRequest = PageRequest.of(page, QUESTION_PAGE_SIZE, Sort.by(sorts));
-        Specification<Question> spec = search(kw);
-        return questionRepository.findAll(spec, pageRequest)
-                .map(QuestionListDto::createQuestionListDto);
+
+        if(categoryName.equals("전체")){
+            return questionRepository.findAll(search(kw), pageRequest).map(QuestionListDto::createQuestionListDto);
+        }else{
+            Specification<Question> spec = (root, query, cb) -> {
+                Category category = categoryService.findByName(categoryName);
+                return cb.and(
+                        search(kw).toPredicate(root, query, cb),
+                        cb.equal(root.get("category"), category)
+                );
+            };
+            return questionRepository.findAll(spec, pageRequest)
+                    .map(QuestionListDto::createQuestionListDto);
+        }
     }
 
     /**
@@ -76,13 +88,17 @@ public class QuestionService {
         return byId.get();
     }
 
-    public void create(String subject, String content, String username) {
+    public void create(String subject, String content, String categoryName, String username) {
         Author author = authorService.findByUsername(username);
-        questionRepository.save(Question.createQuestion(subject, content, author));
+        if(categoryName == null){
+            categoryName = "전체";
+        }
+        Category category = categoryService.findByName(categoryName);
+        questionRepository.save(Question.createQuestion(subject, content, category, author));
     }
 
-    public void modify(Question question, String subject, String content) {
-        modifyQuestion(question, subject, content);
+    public void modify(Question question, String subject, String content, String categoryName) {
+        modifyQuestion(question, subject, content , categoryService.findByName(categoryName));
         questionRepository.save(question);
     }
 
@@ -126,5 +142,12 @@ public class QuestionService {
         return SORT_LATEST.equals(sort)
                 ? comparing(Answer::getCreateDate).reversed()
                 : comparingInt(a -> -a.getVoter().size());
+    }
+
+    public void updateViews(Long id) {
+        questionRepository.findById(id).ifPresent(question -> {
+            question.incemenetViews();
+            questionRepository.save(question);
+        });
     }
 }

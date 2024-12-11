@@ -32,24 +32,37 @@ public class Question {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     private List<Answer> answerList = new ArrayList<Answer>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @ManyToMany
     Set<Author> voter = new HashSet<Author>();
 
+    private Long views;
+
     protected Question() {}
 
-    public static Question createQuestion(String subject, String content, Author author) {
+    public void incemenetViews(){
+        views++;
+    }
+
+    public static Question createQuestion(String subject, String content, Category category, Author author) {
         Question question = new Question();
         question.subject = subject;
         question.content = content;
         question.author = author;
         question.createDate = LocalDateTime.now();
         question.modifyDate = null;
+        question.views = 0L;
+        question.category = category;
         return question;
     }
 
-    public static void modifyQuestion(Question question, String subject, String content) {
+    public static void modifyQuestion(Question question, String subject, String content, Category category) {
         question.subject = subject;
         question.content = content;
         question.modifyDate = LocalDateTime.now();
+        question.category = category;
     }
 }

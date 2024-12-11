@@ -1,6 +1,7 @@
 package com.example.article_site.repository;
 
 import com.example.article_site.domain.Author;
+import com.example.article_site.domain.Category;
 import com.example.article_site.domain.Question;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,9 @@ public class QuestionRepositoryTest {
     @Autowired
     private AuthorRepository authorRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @BeforeEach
     public void createSample(){
         Author author = createAuthor(
@@ -34,14 +38,19 @@ public class QuestionRepositoryTest {
         );
         authorRepository.save(author);
 
+        Category category = Category.createCategory("전체");
+        categoryRepository.save(category);
+
         Question question1 = createQuestion(
                 "subject1",
                 "content1",
+                category,
                 author
         );
         Question question2 = createQuestion(
                 "subject2",
                 "content2",
+                category,
                 author
         );
 

@@ -3,6 +3,7 @@
         <div class="row my-3">
             <div class="col-6">
                 <a th:href="@{/question/create}" class="btn btn-primary"> 질문 등록하기 </a>
+                <a th:href="@{/category/create}" class="btn btn-primary"> 카테고리 등록하기 </a>
             </div>
             <div class="col-6">
                 <div class="input-group">
@@ -11,12 +12,27 @@
                 </div>
             </div>
         </div>
+        <div>
+            <form th:action="@{/question/list}" method="get" class="mb-3">
+                <div class="d-flex">
+                    <select class="form-select me-2" name="category" onchange="this.form.submit()">
+                        <option th:each="categoryName : ${categoryNames}"
+                                th:value="${categoryName}"
+                                th:text="${categoryName}"
+                                th:selected="${categoryName == category}"></option>
+                    </select>
+                    <input type="hidden" name="page" th:value="${paging.number}">
+                    <input type="hidden" name="kw" th:value="${kw}">
+                </div>
+            </form>
+        </div>
         <table class="table">
             <thead class="table-dark">
             <tr class="text-center">
                 <th>번호</th>
                 <th style="width: 50%">제목</th>
-                <th style>글쓴이</th>
+                <th>글쓴이</th>
+                <th>조회수</th>
                 <th>작성일시</th>
             </tr>
             </thead>
@@ -31,6 +47,7 @@
                     </span>
                 </td>
                 <td ><span th:text="${question.author}"></span></td>
+                <td> <span th:text="${question.views}"></span></td>
                 <td th:text="${#temporals.format(question.createDate, 'yyyy-MM-dd HH:mm')}"></td>
             </tr>
             </tbody>
