@@ -47,9 +47,11 @@ public class AnswerController {
 
         Question question = questionService.getQuestionById(id);
         Author author = authorService.findByUsername(principal.getName());
-        answerService.create(question, answerForm.getContent(), author);
-        return "redirect:/question/detail/{id}";
+        Answer answer = answerService.create(question, answerForm.getContent(), author);
+        return String.format("redirect:/question/detail/%s#answer_%s",
+                answer.getQuestion().getId(), answer.getId());
     }
+
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
@@ -78,7 +80,8 @@ public class AnswerController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정 권한이 없습니다.");
         }
         answerService.modify(answer, answerForm.getContent());
-        return String.format("redirect:/question/detail/%s", answer.getQuestion().getId());
+        return String.format("redirect:/question/detail/%s#answer_%s",
+                answer.getQuestion().getId(), answer.getId());
     }
 
 
@@ -101,6 +104,7 @@ public class AnswerController {
         Answer answer = answerService.getAnswer(id);
         Author author = authorService.findByUsername(principal.getName());
         answerService.vote(answer, author);
-        return "redirect:/question/detail/{id}";
+        return String.format("redirect:/question/detail/%s#answer_%s",
+                answer.getQuestion().getId(), answer.getId());
     }
 }

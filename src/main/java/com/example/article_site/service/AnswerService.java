@@ -16,8 +16,8 @@ public class AnswerService {
 
     private final AnswerRepository answerRepository;
 
-    public void create(Question question, String content, Author author) {
-        answerRepository.save(Answer.createAnswer(question, content, author));
+    public Answer create(Question question, String content, Author author) {
+        return answerRepository.save(Answer.createAnswer(question, content, author));
     }
 
     public void modify(Answer answer, String content) {

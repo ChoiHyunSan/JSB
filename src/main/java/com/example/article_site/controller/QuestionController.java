@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -34,9 +33,11 @@ public class QuestionController {
 
     @GetMapping("/list")
     public String list(Model model,
-                        @RequestParam(value="page", defaultValue="0") int page) {
-        Page<QuestionListDto> paging = questionService.getQuestionPageDtos(page);
+                        @RequestParam(value="page", defaultValue="0") int page,
+                       @RequestParam(value = "kw", defaultValue = "") String kw) {
+        Page<QuestionListDto> paging = questionService.getQuestionDtoPage(page, kw);
         model.addAttribute("paging", paging);
+        model.addAttribute("kw", kw);
         return "question_list";
     }
 
