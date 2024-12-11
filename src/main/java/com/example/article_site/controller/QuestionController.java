@@ -1,7 +1,6 @@
 package com.example.article_site.controller;
 
 import com.example.article_site.domain.Author;
-import com.example.article_site.domain.Category;
 import com.example.article_site.domain.Question;
 import com.example.article_site.dto.QuestionDetailDto;
 import com.example.article_site.dto.QuestionListDto;
@@ -94,8 +93,6 @@ public class QuestionController {
             model.addAttribute("categories", categories);
             return "question_form";
         }
-
-
         questionService.create(questionForm.getSubject(), questionForm.getContent(), questionForm.getCategory(), principal.getName());
         return "redirect:/question/list";
     }
@@ -104,11 +101,14 @@ public class QuestionController {
     @GetMapping("/modify/{id}")
     public String questionModify(QuestionForm questionForm,
                                  @PathVariable("id") Long id,
-                                 Principal principal) {
+                                 Principal principal,
+                                 Model model) {
         Question question = questionService.getQuestionById(id);
         if(!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
+        List<String> categories = categoryService.getCategoryNames();
+        model.addAttribute("categories", categories);
         questionForm.setSubject(question.getSubject());
         questionForm.setContent(question.getContent());
         return "question_form";
