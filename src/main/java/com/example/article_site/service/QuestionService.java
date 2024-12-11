@@ -5,18 +5,28 @@ import com.example.article_site.domain.Question;
 import com.example.article_site.dto.QuestionDetailDto;
 import com.example.article_site.dto.QuestionListDto;
 import com.example.article_site.exception.DataNotFoundException;
+import com.example.article_site.form.QuestionForm;
 import com.example.article_site.repository.AuthorRepository;
 import com.example.article_site.repository.QuestionRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.article_site.domain.Question.modifyQuestion;
 import static com.example.article_site.dto.QuestionDetailDto.createQuestionDetailDto;
 import static com.example.article_site.exception.Message.QUESTION_NOT_FOUND;
 
@@ -63,5 +73,27 @@ public class QuestionService {
     public void create(String subject, String content, String username) {
         Author author = authorService.findByUsername(username);
         questionRepository.save(Question.createQuestion(subject, content, author));
+    }
+
+    public void modify(Question question, String subject, String content) {
+        modifyQuestion(question, subject, content);
+        questionRepository.save(question);
+    }
+
+    public void delete(Question question) {
+        questionRepository.delete(question);
+    }
+
+    public Question getQuestion(Long id) {
+        Optional<Question> byId = questionRepository.findById(id);
+        if(byId.isEmpty()){
+            throw new DataNotFoundException(QUESTION_NOT_FOUND);
+        }
+        return byId.get();
+    }
+
+    public void vote(Question question, Author author) {
+        question.getVoter().add(author);
+        questionRepository.save(question);
     }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Entity
@@ -21,9 +23,14 @@ public class Answer {
     private String content;
 
     private LocalDateTime createDate;
+    private LocalDateTime modifyDate;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id")
     private Author author;
+
+    @ManyToMany
+    Set<Author> voter = new HashSet<Author>();
 
     protected Answer() {}
 
@@ -36,5 +43,10 @@ public class Answer {
 
         question.getAnswerList().add(answer);
         return answer;
+    }
+
+    public static void modifyAnswer(Answer answer, String content) {
+        answer.modifyDate = LocalDateTime.now();
+        answer.content = content;
     }
 }

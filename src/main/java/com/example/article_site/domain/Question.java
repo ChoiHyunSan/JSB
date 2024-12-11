@@ -5,7 +5,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Entity
@@ -21,6 +23,7 @@ public class Question {
     private String content;
 
     private LocalDateTime createDate;
+    private LocalDateTime modifyDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
@@ -28,6 +31,9 @@ public class Question {
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     private List<Answer> answerList = new ArrayList<Answer>();
+
+    @ManyToMany
+    Set<Author> voter = new HashSet<Author>();
 
     protected Question() {}
 
@@ -37,6 +43,13 @@ public class Question {
         question.content = content;
         question.author = author;
         question.createDate = LocalDateTime.now();
+        question.modifyDate = null;
         return question;
+    }
+
+    public static void modifyQuestion(Question question, String subject, String content) {
+        question.subject = subject;
+        question.content = content;
+        question.modifyDate = LocalDateTime.now();
     }
 }

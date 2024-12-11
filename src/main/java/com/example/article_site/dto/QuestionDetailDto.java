@@ -15,8 +15,10 @@ public class QuestionDetailDto {
     private String subject;
     private String content;
     private LocalDateTime createDate;
+    private LocalDateTime modifyDate;
     private String author;
     private List<AnswerDto> answerList;
+    private Integer likes;
 
     public static QuestionDetailDto createQuestionDetailDto(Question question) {
         QuestionDetailDto dto = new QuestionDetailDto();
@@ -25,9 +27,11 @@ public class QuestionDetailDto {
         dto.setContent(question.getContent());
         dto.setCreateDate(question.getCreateDate());
         dto.setAuthor(question.getAuthor().getUsername());
+        dto.setModifyDate(question.getModifyDate());
         dto.setAnswerList(question.getAnswerList().stream()
                 .map(AnswerDto::createAnswerDto)
                 .toList());
+        dto.setLikes(question.getVoter().size());
         return dto;
     }
 }
