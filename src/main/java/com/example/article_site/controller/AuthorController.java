@@ -1,16 +1,23 @@
 package com.example.article_site.controller;
 
+import com.example.article_site.domain.Author;
+import com.example.article_site.form.FindPasswordForm;
+import com.example.article_site.form.ModifyPasswordForm;
 import com.example.article_site.form.SignupForm;
 import com.example.article_site.service.AuthorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.security.Principal;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/user")
@@ -50,6 +57,52 @@ public class AuthorController {
         }
 
         return "redirect:/";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/modify")
+    public String modify(ModifyPasswordForm passwordModifyForm) {
+        return "login_modify_form";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/modify")
+    public String modifyPassword(@Valid ModifyPasswordForm passwordModifyForm,
+                                 BindingResult bindingResult,
+                                 Principal principal) {
+        if(bindingResult.hasErrors()) {
+            return "login_modify_form";
+        }
+
+        if(!authorService.modifyPassword(passwordModifyForm, principal.getName())){
+            bindingResult.reject("Wrong Input", "잘못된 입력입니다.");
+            return "login_modify_form";
+        }
+
+        return "redirect:/";
+    }
+
+    @GetMapping("/find")
+    public String find(FindPasswordForm findPasswordForm) {
+        return "find_password_form";
+    }
+
+    @PostMapping("/find")
+    public String find(@Valid FindPasswordForm findPasswordForm,
+                       BindingResult bindingResult,
+                       Model model) {
+        if(bindingResult.hasErrors()) {
+            return "find_password_form";
+        }
+
+        Optional<Author> authorOpt = authorService.checkUserPresent(findPasswordForm.getUsername(), findPasswordForm.getEmail());
+        if(authorOpt.isEmpty()) {
+            bindingResult.reject("match error", "해당하는 아이디를 찾을 수 없습니다.");
+            return "find_password_form";
+        }
+        String newPassword = authorService.createNewPassword(authorOpt.get());
+        model.addAttribute("newPassword", newPassword);
+        return "password_result";
     }
 
     @GetMapping("/login")

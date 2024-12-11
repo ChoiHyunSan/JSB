@@ -27,4 +27,8 @@ public class Author {
         author.password = password;
         return author;
     }
+
+    public void modifyPassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

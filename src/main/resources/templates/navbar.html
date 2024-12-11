@@ -13,7 +13,7 @@
                     <a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/user/login}"> 로 그 인 </a>
                     <a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/user/signup}"> 회 원 가 입 </a>
                     <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/logout}"> 로 그 아 웃 </a>
-                    <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/login}"> 비밀번호 변경 </a>
+                    <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/modify}"> 비밀번호 변경 </a>
                 </li>
             </ul>
         </div>
