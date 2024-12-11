@@ -33,7 +33,7 @@ public class QuestionController {
 
     @GetMapping("/list")
     public String list(Model model,
-                        @RequestParam(value="page", defaultValue="0") int page,
+                       @RequestParam(value="page", defaultValue="0") int page,
                        @RequestParam(value = "kw", defaultValue = "") String kw) {
         Page<QuestionListDto> paging = questionService.getQuestionDtoPage(page, kw);
         model.addAttribute("paging", paging);
@@ -44,8 +44,9 @@ public class QuestionController {
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable("id") Long id,
                          Model model,
+                         @RequestParam(value= "page", defaultValue="0") int answerPage,
                          AnswerForm answerForm) {
-        QuestionDetailDto questionDetailDto =  questionService.getQuestionDetailDto(id);
+        QuestionDetailDto questionDetailDto =  questionService.getQuestionDetailDto(id, answerPage);
         model.addAttribute("question", questionDetailDto);
         return "question_detail";
     }

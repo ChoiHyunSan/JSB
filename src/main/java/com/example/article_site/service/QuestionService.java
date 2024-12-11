@@ -17,12 +17,15 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 import static com.example.article_site.domain.Question.modifyQuestion;
 import static com.example.article_site.dto.QuestionDetailDto.createQuestionDetailDto;
 import static com.example.article_site.exception.Message.QUESTION_NOT_FOUND;
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.comparingInt;
 
 @Service
 @RequiredArgsConstructor
@@ -30,13 +33,15 @@ public class QuestionService {
     private final QuestionRepository questionRepository;
     private final AuthorService authorService;
 
+    private final static int QUESTION_PAGE_SIZE = 10;
+    private final static int ANSWER_PAGE_SIZE = 5;
     /**
      * question 페이지를 QuestionListDto 정보로 변환하여 넘겨준다.
      */
     public Page<QuestionListDto> getQuestionDtoPage(int page, String kw) {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(new Sort.Order(Sort.Direction.ASC, "createDate"));
-        Pageable pageRequest = PageRequest.of(page, 10, Sort.by(sorts));
+        Pageable pageRequest = PageRequest.of(page, QUESTION_PAGE_SIZE, Sort.by(sorts));
         Specification<Question> spec = search(kw);
         return questionRepository.findAll(spec, pageRequest)
                 .map(QuestionListDto::createQuestionListDto);
@@ -46,12 +51,15 @@ public class QuestionService {
      * 상세 페이지로 보낼 id에 맞는 질문 정보를 취합하여 반환
      * 조회되지 않는 질문의 경우 DataNotFoundException 을 던진다.
      */
-    public QuestionDetailDto getQuestionDetailDto(Long id) {
+    public QuestionDetailDto getQuestionDetailDto(Long id, int answerPage) {
         Optional<Question> questionOpt = questionRepository.findById(id);
         if(questionOpt.isEmpty()){
             throw new DataNotFoundException(QUESTION_NOT_FOUND);
         }
-        return createQuestionDetailDto(questionOpt.get());
+        return createQuestionDetailDto(questionOpt.get(),
+                                        answerPage,
+                                        ANSWER_PAGE_SIZE,
+                                        comparingInt(a -> -a.getVoter().size()));  // TODO : 인자로 비교 값을 받아서 처리하게 변경
     }
 
     /**
