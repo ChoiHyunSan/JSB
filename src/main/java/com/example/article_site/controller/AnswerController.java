@@ -4,6 +4,7 @@ import com.example.article_site.domain.Answer;
 import com.example.article_site.domain.Author;
 import com.example.article_site.domain.Question;
 import com.example.article_site.dto.AnswerDetailDto;
+import com.example.article_site.dto.AnswerListDto;
 import com.example.article_site.dto.CommentDto;
 import com.example.article_site.dto.QuestionDetailDto;
 import com.example.article_site.form.AnswerForm;
@@ -14,6 +15,7 @@ import com.example.article_site.service.QuestionService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -33,6 +35,14 @@ public class AnswerController {
     private final AnswerService answerService;
     private final AuthorService authorService;
     private final SortPreference sortPreference;
+
+    @GetMapping("/list")
+    public String list(Model model,
+                       @RequestParam(value="page", defaultValue="0") int page) {
+        Page<AnswerListDto> paging = answerService.getAnswerDtoPage(page);
+        model.addAttribute("paging", paging);
+        return "answer_list";
+    }
 
     @PreAuthorize(" isAuthenticated()")
     @PostMapping("/create/{id}")

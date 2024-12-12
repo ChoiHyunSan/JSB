@@ -5,12 +5,16 @@ import com.example.article_site.domain.Author;
 import com.example.article_site.domain.Comment;
 import com.example.article_site.domain.Question;
 import com.example.article_site.dto.AnswerDetailDto;
+import com.example.article_site.dto.AnswerListDto;
 import com.example.article_site.exception.DataNotFoundException;
 import com.example.article_site.repository.AnswerRepository;
 import com.example.article_site.repository.CommentRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -26,6 +30,7 @@ public class AnswerService {
     private final AnswerRepository answerRepository;
     private final AuthorService authorService;
     private final CommentRepository commentRepository;
+    private final static int ANSWER_PAGE_SIZE = 10;
 
     public Answer create(Question question, String content, Author author) {
         return answerRepository.save(Answer.createAnswer(question, content, author));
@@ -66,5 +71,11 @@ public class AnswerService {
         Author author = authorService.findByUsername(name);
         Comment comment =  createComment(answer, author, content);
         commentRepository.save(comment);
+    }
+
+    public Page<AnswerListDto> getAnswerDtoPage(int page) {
+        Pageable pageable = PageRequest.of(page, ANSWER_PAGE_SIZE);
+        return answerRepository.findAll(pageable)
+                .map(AnswerListDto::createAnswerListDto);
     }
 }
