@@ -1,6 +1,7 @@
 package com.example.article_site.service;
 
 import com.example.article_site.domain.Author;
+import com.example.article_site.dto.profile.AuthorProfileDto;
 import com.example.article_site.exception.DataNotFoundException;
 import com.example.article_site.form.ModifyPasswordForm;
 import com.example.article_site.form.SignupForm;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.example.article_site.domain.Author.createAuthor;
+import static com.example.article_site.dto.profile.AuthorProfileDto.createAuthorProfileDto;
 
 @Slf4j
 @Service
@@ -62,7 +64,6 @@ public class AuthorService implements UserDetailsService {
     }
 
     public Author findByUsername(String username){
-        log.info(username);
         Optional<Author> byUsername = authorRepository.findByUsername(username);
         if(byUsername.isPresent()){
             return byUsername.get();
@@ -101,5 +102,9 @@ public class AuthorService implements UserDetailsService {
 
     public Author save(Author author) {
         return authorRepository.save(author);
+    }
+
+    public AuthorProfileDto getAuthorProfileDto(String name) {
+        return createAuthorProfileDto(findByUsername(name));
     }
 }

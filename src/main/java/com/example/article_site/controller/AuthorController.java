@@ -4,7 +4,10 @@ import com.example.article_site.domain.Author;
 import com.example.article_site.form.FindPasswordForm;
 import com.example.article_site.form.ModifyPasswordForm;
 import com.example.article_site.form.SignupForm;
+import com.example.article_site.service.AnswerService;
 import com.example.article_site.service.AuthorService;
+import com.example.article_site.service.CommentService;
+import com.example.article_site.service.QuestionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,6 +28,9 @@ import java.util.Optional;
 public class AuthorController {
 
     private final AuthorService authorService;
+    private final QuestionService  questionService;
+    private final AnswerService answerService;
+    private final CommentService commentService;
 
     @GetMapping("/signup")
     public String signup(SignupForm signUpForm) {
@@ -108,5 +114,16 @@ public class AuthorController {
     @GetMapping("/login")
     public String login() {
         return "login_form";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/profile")
+    public String profile(Model model,
+                          Principal principal) {
+        model.addAttribute("userInfo", authorService.getAuthorProfileDto(principal.getName()));
+        model.addAttribute("questionList", questionService.getQuestionProfileDtoList(principal.getName()));
+        model.addAttribute("answerList", answerService.getAnswerProfileDtoList(principal.getName()));
+        model.addAttribute("commentList", commentService.getCommentProfileDtoList(principal.getName()));
+        return "profile_form";
     }
 }

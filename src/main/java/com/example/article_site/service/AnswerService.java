@@ -6,6 +6,8 @@ import com.example.article_site.domain.Comment;
 import com.example.article_site.domain.Question;
 import com.example.article_site.dto.AnswerDetailDto;
 import com.example.article_site.dto.AnswerListDto;
+import com.example.article_site.dto.profile.AnswerProfileDto;
+import com.example.article_site.dto.profile.QuestionProfileDto;
 import com.example.article_site.exception.DataNotFoundException;
 import com.example.article_site.repository.AnswerRepository;
 import com.example.article_site.repository.CommentRepository;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.example.article_site.domain.Comment.createComment;
@@ -77,5 +80,11 @@ public class AnswerService {
         Pageable pageable = PageRequest.of(page, ANSWER_PAGE_SIZE);
         return answerRepository.findAll(pageable)
                 .map(AnswerListDto::createAnswerListDto);
+    }
+
+    public List<AnswerProfileDto> getAnswerProfileDtoList(String name) {
+        return answerRepository.findByAuthor(authorService.findByUsername(name)).stream()
+                .map(AnswerProfileDto::createAnswerProfileDto)
+                .toList();
     }
 }

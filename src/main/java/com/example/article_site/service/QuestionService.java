@@ -6,6 +6,7 @@ import com.example.article_site.domain.Category;
 import com.example.article_site.domain.Question;
 import com.example.article_site.dto.QuestionDetailDto;
 import com.example.article_site.dto.QuestionListDto;
+import com.example.article_site.dto.profile.QuestionProfileDto;
 import com.example.article_site.exception.DataNotFoundException;
 import com.example.article_site.repository.QuestionRepository;
 import jakarta.persistence.criteria.*;
@@ -154,5 +155,11 @@ public class QuestionService {
             question.incemenetViews();
             questionRepository.save(question);
         });
+    }
+
+    public List<QuestionProfileDto> getQuestionProfileDtoList(String name) {
+        return questionRepository.findByAuthor(authorService.findByUsername(name)).stream()
+                .map(QuestionProfileDto::createQuestionProfileDto)
+                .toList();
     }
 }
