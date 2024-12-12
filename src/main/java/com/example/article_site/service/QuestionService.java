@@ -9,6 +9,7 @@ import com.example.article_site.dto.QuestionListDto;
 import com.example.article_site.exception.DataNotFoundException;
 import com.example.article_site.repository.QuestionRepository;
 import jakarta.persistence.criteria.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +30,7 @@ import static com.example.article_site.exception.Message.QUESTION_NOT_FOUND;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingInt;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class QuestionService {

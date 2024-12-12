@@ -4,6 +4,7 @@ import com.example.article_site.domain.Category;
 import com.example.article_site.exception.DataNotFoundException;
 import com.example.article_site.form.CategoryForm;
 import com.example.article_site.repository.CategoryRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import static com.example.article_site.domain.Category.createCategory;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class CategoryService {
 

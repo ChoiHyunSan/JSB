@@ -5,12 +5,14 @@ import com.example.article_site.domain.Author;
 import com.example.article_site.domain.Question;
 import com.example.article_site.exception.DataNotFoundException;
 import com.example.article_site.repository.AnswerRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AnswerService {
 
