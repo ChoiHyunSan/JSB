@@ -22,9 +22,9 @@
                 <span class="badge rounded-pill bg-success" th:text="${question.likes}"></span></a>
             <a> 조회수 <span class="badge rounded-pill bg-success" th:text="${question.views}"></span> </a>
             <a th:href="@{|/question/modify/${question.id}|}" class="btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-               th:if="${question.author != null and #authentication.principal.username == question.author}" th:text="수정"></a>
+               th:if="${question.author != null and #authentication.name == question.author}" th:text="수정"></a>
             <a href="javascript:void(0);" th:data-uri="@{|/question/delete/${question.id}|}" class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-               th:if="${question.author != null and #authentication.principal.username == question.author}" th:text="삭제"></a>
+               th:if="${question.author != null and #authentication.name == question.author}" th:text="삭제"></a>
             <!-- 답변의 갯수 표시 -->
             <div>
                 <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answerCount)}개의 답변이 있습니다.|"></h5>
@@ -67,15 +67,14 @@
                         <span class="badge rounded-pill bg-success" th:text="${answer.likes}"></span></a>
                     <a th:href="@{|/answer/comment/${answer.id}|}" class="btn btn-sm btn-outline-secondary"
                        sec:authorize="isAuthenticated()"
-                       th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author}"
                        th:text="댓글달기"></a>
                     <a th:href="@{|/answer/modify/${answer.id}|}" class="btn btn-sm btn-outline-secondary"
                        sec:authorize="isAuthenticated()"
-                       th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author}"
+                       th:if="${answer.author != null and #authentication.name == answer.author}"
                        th:text="수정"></a>
                     <a href="javascript:void(0);" th:data-uri="@{|/answer/delete/${answer.id}|}"
                        class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-                       th:if="${answer.author != null and #authentication.getPrincipal().getUsername() == answer.author}"
+                       th:if="${answer.author != null and #authentication.name == answer.author}"
                        th:text="삭제"></a>
                 </div>
             </div>

@@ -3,8 +3,11 @@ package com.example.article_site.controller;
 import com.example.article_site.domain.Answer;
 import com.example.article_site.domain.Author;
 import com.example.article_site.domain.Question;
+import com.example.article_site.dto.AnswerDetailDto;
+import com.example.article_site.dto.CommentDto;
 import com.example.article_site.dto.QuestionDetailDto;
 import com.example.article_site.form.AnswerForm;
+import com.example.article_site.form.CommentForm;
 import com.example.article_site.service.AnswerService;
 import com.example.article_site.service.AuthorService;
 import com.example.article_site.service.QuestionService;
@@ -109,5 +112,31 @@ public class AnswerController {
         answerService.vote(answer, author);
         return String.format("redirect:/question/detail/%s#answer_%s",
                 answer.getQuestion().getId(), answer.getId());
+    }
+
+    @GetMapping("/comment/{id}")
+    public String comment(@PathVariable("id") Long id,
+                         Model model){
+        AnswerDetailDto answerDetailDto = answerService.getAnswerDetailDto(id);
+        model.addAttribute("answer", answerDetailDto);
+        model.addAttribute("commentForm", new CommentForm());
+        return "answer_detail";
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/comment/{id}")
+    public String comment(@PathVariable("id") Long id,
+                          @Valid CommentForm commentForm,
+                          BindingResult bindingResult,
+                          Principal principal,
+                          Model model) {
+        if (bindingResult.hasErrors()) {
+            AnswerDetailDto answerDetailDto = answerService.getAnswerDetailDto(id);
+            model.addAttribute("answer", answerDetailDto);
+            return "answer_detail";
+        }
+
+        answerService.addComment(id, commentForm.getContent(), principal.getName());
+        return "redirect:/answer/comment/{id}";
     }
 }

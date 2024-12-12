@@ -2,6 +2,7 @@ package com.example.article_site.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class Answer {
     Set<Author> voter = new HashSet<Author>();
 
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
+    @BatchSize(size = 100)
     List<Comment> commentList = new ArrayList<>();
 
     protected Answer() {}

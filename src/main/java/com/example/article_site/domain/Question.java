@@ -2,6 +2,7 @@ package com.example.article_site.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class Question {
     private Author author;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @BatchSize(size = 100)
     private List<Answer> answerList = new ArrayList<Answer>();
 
     @ManyToOne(fetch = FetchType.LAZY)

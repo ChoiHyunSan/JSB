@@ -27,4 +27,14 @@ public class Comment {
 
     @CreatedDate
     private LocalDateTime createDate;
+
+    public static Comment createComment(Answer answer, Author author, String content) {
+        Comment comment = new Comment();
+        comment.answer = answer;
+        comment.author = author;
+        comment.content = content;
+        comment.createDate = LocalDateTime.now();
+        answer.getCommentList().add(comment);
+        return comment;
+    }
 }
