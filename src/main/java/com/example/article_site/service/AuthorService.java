@@ -51,15 +51,6 @@ public class AuthorService implements UserDetailsService {
         return new User(siteUser.getUsername(), siteUser.getPassword(), authorities);
     }
 
-//    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        Optional<Author> author = authorRepository.findByUsername(username);
-//        if (author.isEmpty()) {
-//            throw new UsernameNotFoundException("사용자를 찾을 수 없습니다.");
-//        }
-//        return new User(author.get().getUsername(), author.get().getPassword(), new ArrayList<>());
-//    }
-
     public Author create(SignupForm signUpForm){
         Author author = createAuthor(
                 signUpForm.getUsername(),
@@ -71,6 +62,7 @@ public class AuthorService implements UserDetailsService {
     }
 
     public Author findByUsername(String username){
+        log.info(username);
         Optional<Author> byUsername = authorRepository.findByUsername(username);
         if(byUsername.isPresent()){
             return byUsername.get();

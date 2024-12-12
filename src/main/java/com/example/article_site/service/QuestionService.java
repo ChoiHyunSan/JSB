@@ -11,6 +11,7 @@ import com.example.article_site.repository.QuestionRepository;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ import static com.example.article_site.exception.Message.QUESTION_NOT_FOUND;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingInt;
 
+@Slf4j
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -91,6 +93,7 @@ public class QuestionService {
     }
 
     public void create(String subject, String content, String categoryName, String username) {
+
         Author author = authorService.findByUsername(username);
         if(categoryName == null){
             categoryName = "전체";

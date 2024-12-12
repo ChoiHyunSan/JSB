@@ -18,18 +18,18 @@
             </div>
         </div>
         <div class="my-3">
-            <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline secondary" th:data-uri="@{|/question/vote/${question.id}|}"> 추천
+            <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary" th:data-uri="@{|/question/vote/${question.id}|}"> 추천
                 <span class="badge rounded-pill bg-success" th:text="${question.likes}"></span></a>
             <a> 조회수 <span class="badge rounded-pill bg-success" th:text="${question.views}"></span> </a>
             <a th:href="@{|/question/modify/${question.id}|}" class="btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-               th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author}" th:text="수정"></a>
+               th:if="${question.author != null and #authentication.principal.username == question.author}" th:text="수정"></a>
             <a href="javascript:void(0);" th:data-uri="@{|/question/delete/${question.id}|}" class="delete btn btn-sm btn-outline-secondary" sec:authorize="isAuthenticated()"
-               th:if="${question.author != null and #authentication.getPrincipal().getUsername() == question.author}" th:text="삭제"></a>
+               th:if="${question.author != null and #authentication.principal.username == question.author}" th:text="삭제"></a>
             <!-- 답변의 갯수 표시 -->
-        <div>
-            <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answerCount)}개의 답변이 있습니다.|"></h5>
+            <div>
+                <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(question.answerCount)}개의 답변이 있습니다.|"></h5>
+            </div>
         </div>
-
         <!-- 답변 작성 -->
         <form th:action="@{|/answer/create/${question.id}|}" th:object="${answerForm}"
               method="post" class="my-3">
@@ -63,7 +63,7 @@
                     </div>
                 </div>
                 <div class="my-3">
-                    <a href="javascript:void(0);" class="recommend btn btn-sm btn-outlinesecondary" th:data-uri="@{|/answer/vote/${answer.id}|}"> 추천
+                    <a href="javascript:void(0);" class="recommend btn btn-sm btn-outline-secondary" th:data-uri="@{|/answer/vote/${answer.id}|}"> 추천
                         <span class="badge rounded-pill bg-success" th:text="${answer.likes}"></span></a>
                     <a th:href="@{|/answer/modify/${answer.id}|}" class="btn btn-sm btn-outline-secondary"
                        sec:authorize="isAuthenticated()"
@@ -104,6 +104,8 @@
         </form>
     </div>
         <script layout:fragment="script" type='text/javascript'>
+            var simplemde = new SimpleMDE({element:document.getElementById("content")});
+
             const page_elements = document.getElementsByClassName("page-link");
             Array.from(page_elements).forEach(function(element) {
                 console.log("click");

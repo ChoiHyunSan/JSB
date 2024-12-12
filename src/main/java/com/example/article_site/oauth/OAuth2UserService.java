@@ -15,6 +15,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -27,8 +29,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        log.info("Call loadUser From KaKao Login");
-
         OAuth2User oauth2User = super.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
@@ -40,9 +40,12 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         Author author = saveOrUpdate(attributes);
 
+        Map<String, Object> customAttributes = new HashMap<>(attributes.getAttributes());
+        customAttributes.put(userNameAttributeName, author.getUsername());
+
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
-                attributes.getAttributes(),
+                customAttributes,
                 attributes.getNameAttributeKey());
     }
 
