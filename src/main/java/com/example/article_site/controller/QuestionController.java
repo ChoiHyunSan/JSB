@@ -41,15 +41,7 @@ public class QuestionController {
                        @RequestParam(value="page", defaultValue="0") int page,
                        @RequestParam(value="category", defaultValue = "전체") String category,
                        @RequestParam(value = "kw", defaultValue = "") String kw) {
-        // Category List
-        List<String> categories = categoryService.getCategoryNames();
-        model.addAttribute("categoryNames", categories);
-
-        // Question List
-        Page<QuestionListDto> paging = questionService.getQuestionDtoPage(page, kw, category);
-        model.addAttribute("paging", paging);
-        model.addAttribute("kw", kw);
-        model.addAttribute("category", category);
+        addListDataToModel(model, page, category, kw);
         return "question_list";
     }
 
@@ -77,8 +69,7 @@ public class QuestionController {
     public String create(QuestionForm questionForm,
                          Model model) {
 
-        List<String> categories = categoryService.getCategoryNames();
-        model.addAttribute("categories", categories);
+        addCategoriesToModel(model);
         return "question_form";
     }
 
@@ -89,8 +80,7 @@ public class QuestionController {
                                  Principal principal,
                                  Model model) {
         if(bindingResult.hasErrors()) {
-            List<String> categories = categoryService.getCategoryNames();  // 또는 getCategoryList() 등
-            model.addAttribute("categories", categories);
+            addCategoriesToModel(model);
             return "question_form";
         }
         questionService.create(questionForm.getSubject(), questionForm.getContent(), questionForm.getCategory(), principal.getName());
@@ -107,8 +97,7 @@ public class QuestionController {
         if(!question.getAuthor().getUsername().equals(principal.getName())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
         }
-        List<String> categories = categoryService.getCategoryNames();
-        model.addAttribute("categories", categories);
+        addCategoriesToModel(model);
         questionForm.setSubject(question.getSubject());
         questionForm.setContent(question.getContent());
         return "question_form";
@@ -150,7 +139,23 @@ public class QuestionController {
         Question question = questionService.getQuestion(id);
         Author author = authorService.findByUsername(principal.getName());
         questionService.vote(question, author);
-        log.debug("voter size : {}", question.getVoter().size());
         return "redirect:/question/detail/{id}";
+    }
+
+    private void addListDataToModel(Model model, int page, String category, String kw) {
+        // Category List
+        List<String> categories = categoryService.getCategoryNames();
+        model.addAttribute("categoryNames", categories);
+
+        // Question List
+        Page<QuestionListDto> paging = questionService.getQuestionDtoPage(page, kw, category);
+        model.addAttribute("paging", paging);
+        model.addAttribute("kw", kw);
+        model.addAttribute("category", category);
+    }
+
+    private void addCategoriesToModel(Model model) {
+        List<String> categories = categoryService.getCategoryNames();
+        model.addAttribute("categories", categories);
     }
 }

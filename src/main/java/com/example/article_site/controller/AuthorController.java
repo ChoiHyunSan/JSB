@@ -52,14 +52,8 @@ public class AuthorController {
 
         try{
             authorService.create(signUpForm);
-        }catch(DataIntegrityViolationException e){
-            e.printStackTrace();
-            bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");
-            return "signup_form";
-        } catch (Exception e) {
-            e.printStackTrace();
-            bindingResult.reject("signupFailed", e.getMessage());
-            return "signup_form";
+        }catch(Exception e) {
+            return handleSignupError(e, bindingResult);
         }
 
         return "redirect:/";
@@ -101,7 +95,8 @@ public class AuthorController {
             return "find_password_form";
         }
 
-        Optional<Author> authorOpt = authorService.checkUserPresent(findPasswordForm.getUsername(), findPasswordForm.getEmail());
+        Optional<Author> authorOpt = authorService.checkUserPresent(
+                findPasswordForm.getUsername(), findPasswordForm.getEmail());
         if(authorOpt.isEmpty()) {
             bindingResult.reject("match error", "해당하는 아이디를 찾을 수 없습니다.");
             return "find_password_form";
@@ -120,10 +115,24 @@ public class AuthorController {
     @GetMapping("/profile")
     public String profile(Model model,
                           Principal principal) {
+        addProfileDataToModel(model, principal);
+        return "profile_form";
+    }
+
+    private void addProfileDataToModel(Model model, Principal principal) {
         model.addAttribute("userInfo", authorService.getAuthorProfileDto(principal.getName()));
         model.addAttribute("questionList", questionService.getQuestionProfileDtoList(principal.getName()));
         model.addAttribute("answerList", answerService.getAnswerProfileDtoList(principal.getName()));
         model.addAttribute("commentList", commentService.getCommentProfileDtoList(principal.getName()));
-        return "profile_form";
+    }
+
+    private String handleSignupError(Exception e, BindingResult bindingResult) {
+        e.printStackTrace();
+        if(e instanceof DataIntegrityViolationException) {
+            bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");
+        }else{
+            bindingResult.reject("signupFailed", e.getMessage());
+        }
+        return "signup_form";
     }
 }

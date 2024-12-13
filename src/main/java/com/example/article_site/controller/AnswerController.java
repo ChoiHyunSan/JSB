@@ -36,6 +36,9 @@ public class AnswerController {
     private final AuthorService authorService;
     private final SortPreference sortPreference;
 
+    private static final String NO_MODIFY_PERMISSION = "수정 권한이 없습니다.";
+    private static final String NO_DELETE_PERMISSION = "삭제 권한이 없습니다.";
+    
     @GetMapping("/list")
     public String list(Model model,
                        @RequestParam(value="page", defaultValue="0") int page) {
@@ -55,10 +58,7 @@ public class AnswerController {
                          HttpSession session,
                          Principal principal) {
         if(bindingResult.hasErrors()) {
-            String currentSort = sortPreference.getCurrentSort(session, sort);
-            QuestionDetailDto questionDetailDto = questionService.getQuestionDetailDto(id, answerPage, currentSort);
-            model.addAttribute("question", questionDetailDto);
-            return "question_detail";
+            return handleCreateValidationError(model, id, answerPage, sort, session);
         }
 
         Question question = questionService.getQuestionById(id);
@@ -68,6 +68,12 @@ public class AnswerController {
                 answer.getQuestion().getId(), answer.getId());
     }
 
+    private String handleCreateValidationError(Model model, Long id, int answerPage, String sort, HttpSession session) {
+        String currentSort = sortPreference.getCurrentSort(session, sort);
+        QuestionDetailDto questionDetailDto = questionService.getQuestionDetailDto(id, answerPage, currentSort);
+        model.addAttribute("question", questionDetailDto);
+        return "question_detail";
+    }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/modify/{id}")
@@ -75,9 +81,7 @@ public class AnswerController {
                                @PathVariable("id") Long id,
                                Principal principal) {
         Answer answer = this.answerService.getAnswer(id);
-        if (!answer.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정 권한이 없습니다.");
-        }
+        validateAuthorPermission(answer, principal.getName(), NO_MODIFY_PERMISSION);
         answerForm.setContent(answer.getContent());
         return "answer_form";
     }
@@ -92,9 +96,7 @@ public class AnswerController {
             return "answer_form";
         }
         Answer answer = answerService.getAnswer(id);
-        if (!answer.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정 권한이 없습니다.");
-        }
+        validateAuthorPermission(answer, principal.getName(), NO_MODIFY_PERMISSION);
         answerService.modify(answer, answerForm.getContent());
         return String.format("redirect:/question/detail/%s#answer_%s",
                 answer.getQuestion().getId(), answer.getId());
@@ -106,9 +108,7 @@ public class AnswerController {
     public String answerDelete(Principal principal,
                                @PathVariable("id") Long id) {
         Answer answer = answerService.getAnswer(id);
-        if (!answer.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "삭제권한이 없습니다.");
-        }
+        validateAuthorPermission(answer, principal.getName(), NO_DELETE_PERMISSION);
         answerService.delete(answer);
         return String.format("redirect:/question/detail/%s", answer.getQuestion().getId());
     }
@@ -127,8 +127,7 @@ public class AnswerController {
     @GetMapping("/comment/{id}")
     public String comment(@PathVariable("id") Long id,
                          Model model){
-        AnswerDetailDto answerDetailDto = answerService.getAnswerDetailDto(id);
-        model.addAttribute("answer", answerDetailDto);
+        addAnswerDetailToModel(id, model);
         model.addAttribute("commentForm", new CommentForm());
         return "answer_detail";
     }
@@ -141,12 +140,22 @@ public class AnswerController {
                           Principal principal,
                           Model model) {
         if (bindingResult.hasErrors()) {
-            AnswerDetailDto answerDetailDto = answerService.getAnswerDetailDto(id);
-            model.addAttribute("answer", answerDetailDto);
+            addAnswerDetailToModel(id, model);
             return "answer_detail";
         }
 
         answerService.addComment(id, commentForm.getContent(), principal.getName());
         return "redirect:/answer/comment/{id}";
+    }
+
+    private void addAnswerDetailToModel(Long id, Model model) {
+        AnswerDetailDto answerDetailDto = answerService.getAnswerDetailDto(id);
+        model.addAttribute("answer", answerDetailDto);
+    }
+
+    private void validateAuthorPermission(Answer answer, String username, String errorMessage){
+        if (!answer.getAuthor().getUsername().equals(username)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
     }
 }

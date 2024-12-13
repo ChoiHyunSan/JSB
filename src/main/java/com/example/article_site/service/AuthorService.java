@@ -44,12 +44,8 @@ public class AuthorService implements UserDetailsService {
         }
         Author siteUser = _siteUser.get();
         List<GrantedAuthority> authorities = new ArrayList<>();
-        if ("admin".equals(username)) {
-            authorities.add(new SimpleGrantedAuthority(UserRole.ADMIN.getValue()))
-            ;
-        } else {
-            authorities.add(new SimpleGrantedAuthority(UserRole.USER.getValue()));
-        }
+        if ("admin".equals(username)) authorities.add(new SimpleGrantedAuthority(UserRole.ADMIN.getValue()));
+        else authorities.add(new SimpleGrantedAuthority(UserRole.USER.getValue()));
         return new User(siteUser.getUsername(), siteUser.getPassword(), authorities);
     }
 

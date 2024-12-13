@@ -49,7 +49,7 @@ public class QuestionService {
      */
     public Page<QuestionListDto> getQuestionDtoPage(int page, String kw, String categoryName) {
         List<Sort.Order> sorts = new ArrayList<>();
-        sorts.add(new Sort.Order(Sort.Direction.ASC, "createDate"));
+        sorts.add(new Sort.Order(Sort.Direction.DESC, "createDate"));
         Pageable pageRequest = PageRequest.of(page, QUESTION_PAGE_SIZE, Sort.by(sorts));
 
         if(categoryName.equals("전체")){
