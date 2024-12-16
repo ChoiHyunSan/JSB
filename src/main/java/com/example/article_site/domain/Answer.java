@@ -33,11 +33,11 @@ public class Answer {
     private Author author;
 
     @ManyToMany
-    Set<Author> voter = new HashSet<Author>();
+    Set<Author> voter = new HashSet<Author>();  // TODO : Long 값을 보관하게 바꿔서 불필요한 로딩 줄이기 (@ElementCollection)
 
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
     @BatchSize(size = 100)
-    List<Comment> commentList = new ArrayList<>();
+    List<Comment> commentList = new ArrayList<>();  // TODO : Comment 가 많아질 것으로 예상된다면, 댓글은 필요할 때 불러오도록 바꾸는 것이 좋다.
 
     protected Answer() {}
 

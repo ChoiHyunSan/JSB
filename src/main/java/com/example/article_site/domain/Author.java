@@ -3,6 +3,8 @@ package com.example.article_site.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 public class Author {
@@ -15,7 +17,6 @@ public class Author {
 
     private String email;
 
-    @Column(unique = true)
     private String password;
 
     private String picture;    // 프로필 이미지 URL
@@ -43,7 +44,7 @@ public class Author {
         Author author = new Author();
         author.username = username;
         author.email = email;
-        author.password = "SOCIAL_USER"; // 소셜 로그인 유저는 임의의 비밀번호
+        author.password = UUID.randomUUID().toString(); // 소셜 로그인 유저는 임의의 비밀번호
         author.picture = picture;
         author.provider = provider;
         author.providerId = providerId;
